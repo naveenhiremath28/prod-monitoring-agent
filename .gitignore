@@ -1,0 +1,9 @@
+# Virtual environment
+.venv/
+
+# Byte-compiled / cache files
+__pycache__/
+*.pyc
+
+# macOS metadata
+.DS_Store
