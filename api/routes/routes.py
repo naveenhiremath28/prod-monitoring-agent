@@ -15,7 +15,7 @@ from api.schemas.schema import (
 )
 from api.schemas.base_schema import ResponseParams
 from api.controllers.services import IssueService
-from api.exceptions import IssueException
+from api.exceptions.exceptions import IssueException
 
 router = APIRouter()
 service = IssueService(engine)

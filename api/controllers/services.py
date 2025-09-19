@@ -12,7 +12,7 @@ from api.schemas.schema import (
 )
 from api.config.queries import IssueQueries
 from api.controllers.postgres_service import PostgresService
-from api.exceptions import IssueException
+from api.exceptions.exceptions import IssueException
 
 
 class IssueService:

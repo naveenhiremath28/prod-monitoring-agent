@@ -3,6 +3,7 @@
 
 # Byte-compiled / cache files
 __pycache__/
+*.py[cod]
 *.pyc
 
 # macOS metadata

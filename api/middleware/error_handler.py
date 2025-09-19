@@ -3,7 +3,7 @@ from fastapi.responses import JSONResponse
 from uuid import uuid4
 from datetime import datetime
 
-from api.exceptions import IssueException
+from api.exceptions.exceptions import IssueException
 from api.schemas.base_schema import ResponseParams
 
 async def issue_exception_handler(request: Request, exc: IssueException):

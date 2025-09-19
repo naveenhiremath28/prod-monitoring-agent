@@ -2,7 +2,7 @@ from fastapi import FastAPI
 from api.routes import routes
 from api.models.models import Base
 from api.database.session import engine
-from api.exceptions import IssueException
+from api.exceptions.exceptions import IssueException
 from api.middleware.error_handler import issue_exception_handler
 import asyncio
 
