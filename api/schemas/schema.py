@@ -9,6 +9,7 @@ class IssueBase(BaseModel):
     title: str
     description: Optional[str] = None
     analysis: Optional[str] = None
+    issue_logs: Optional[List[str]]
     application_type: Optional[str] = None
     occurrence: Optional[int] = 0
     status: str = "open"
@@ -22,6 +23,7 @@ class IssueUpdate(BaseModel):
     title: Optional[str] = None
     description: Optional[str] = None
     analysis: Optional[str] = None
+    issue_logs: Optional[List[str]]
     application_type: Optional[str] = None
     occurrence: Optional[int] = None
     status: Optional[str] = None
@@ -33,13 +35,12 @@ class IssueResponse(BaseModel):
     title: str
     description: Optional[str]
     analysis: Optional[str]
+    issue_logs: Optional[List[str]]
     application_type: Optional[str]
     occurrence: int
     status: str
     severity: Optional[str] = None
     error_type: Optional[str] = None
-    created_at: datetime
-    updated_at: datetime
 
     class Config:
         from_attributes = True

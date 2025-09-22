@@ -78,6 +78,7 @@ class IssueService:
                 **request.model_dump(),
                 "created_at": now,
                 "updated_at": now,
+                "issue_logs": request.issue_logs or []
             }
             result = self.db.execute_upsert(IssueQueries.CREATE_ISSUE, params)
 
@@ -111,11 +112,12 @@ class IssueService:
                     status_code=status.HTTP_404_NOT_FOUND,
                     message=f"Issue with id {issue_id} not found",
                 )
-
+            new_logs = request.issue_logs or existing["issue_logs"]
             params = {
                 **request.model_dump(),
                 "updated_at": datetime.utcnow(),
                 "issue_id": str(issue_id),
+                "new_logs": new_logs
             }
             self.db.execute_upsert(IssueQueries.UPDATE_ISSUE, params)
 
@@ -143,7 +145,7 @@ class IssueService:
                 error=e,
             )
 
-    def delete_issue(self, issue_id: UUID, msgid: UUID) -> DeleteIssueResponse:
+    def delete_issue(self, issue_id: UUID) -> DeleteIssueResponse:
         try:
             existing = self.db.execute_select_one(
                 IssueQueries.GET_ISSUE_BY_ID,
@@ -171,7 +173,7 @@ class IssueService:
                 id="api.issue.delete",
                 ver="v1",
                 ts=datetime.now().isoformat(),
-                params=ResponseParams(status="SUCCESS", msgid=msgid),
+                params=ResponseParams(status="SUCCESS", msgid=uuid4()),
                 responseCode="OK",
                 result={"message": "Issue deleted successfully"},
             )

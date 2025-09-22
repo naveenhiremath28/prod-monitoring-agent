@@ -42,5 +42,5 @@ def update_issue(issue_id: UUID, request: IssueUpdateRequest):
 
 
 @router.delete("/issues/{issue_id}", response_model=DeleteIssueResponse)
-def delete_issue(issue_id: UUID, request: IssueCreateRequest):
-    return service.delete_issue(issue_id=issue_id, msgid=request.params.msgid)
+def delete_issue(issue_id: UUID):
+    return service.delete_issue(issue_id=issue_id)
