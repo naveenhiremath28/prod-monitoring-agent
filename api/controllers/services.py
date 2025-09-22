@@ -40,6 +40,16 @@ class IssueService:
                 error=e,
             )
 
+    def get_issue_by_title(self, title: str):
+        try:
+            issue = self.db.execute_select_one(
+                IssueQueries.GET_ISSUE_BY_TITLE,
+                {"title": title}
+            )
+            return issue
+        except Exception:
+            return None
+
     def get_issue_by_id(self, issue_id: UUID) -> SingleIssueResponse:
         try:
             issue = self.db.execute_select_one(
@@ -75,6 +85,7 @@ class IssueService:
         try:
             now = datetime.utcnow()
             params = {
+                "id": str(uuid4()),
                 **request.model_dump(),
                 "created_at": now,
                 "updated_at": now,
@@ -93,6 +104,7 @@ class IssueService:
         except IssueException as ie:
             raise ie
         except Exception as e:
+            print(e)
             raise IssueException(
                 err_code="FAILED",
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
@@ -112,12 +124,11 @@ class IssueService:
                     status_code=status.HTTP_404_NOT_FOUND,
                     message=f"Issue with id {issue_id} not found",
                 )
-            new_logs = request.issue_logs or existing["issue_logs"]
             params = {
-                **request.model_dump(),
+                "occurrence": request.occurrence or existing.get("occurrence", 0),
+                "issue_logs": request.issue_logs or existing.get("issue_logs", []),
                 "updated_at": datetime.utcnow(),
-                "issue_id": str(issue_id),
-                "new_logs": new_logs
+                "issue_id": str(issue_id)
             }
             self.db.execute_upsert(IssueQueries.UPDATE_ISSUE, params)
 
@@ -138,6 +149,7 @@ class IssueService:
         except IssueException as ie:
             raise ie
         except Exception as e:
+            print(e)
             raise IssueException(
                 err_code="FAILED",
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,

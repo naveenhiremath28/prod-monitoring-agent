@@ -4,7 +4,7 @@ from api.models.models import Base
 from api.database.session import engine
 from api.exceptions.exceptions import IssueException
 from api.middleware.error_handler import issue_exception_handler
-from agents.log_monitor import LogMonitorAgent
+# from agents.log_monitor import LogMonitorAgent
 import uvicorn
 import threading
 
