@@ -1,3 +1,4 @@
+import os
 import re
 import json
 import time
@@ -5,10 +6,13 @@ from pathlib import Path
 from datetime import datetime
 from typing import List, Dict, Optional
 from sqlalchemy import create_engine
+from dotenv import load_dotenv
 
 from api.controllers.services import IssueService
 from api.schemas.schema import IssueCreate, IssueUpdate
 from uuid import UUID
+
+load_dotenv()
 
 class AdvancedLogMonitor:
     COMMON_LOG_LEVELS = ['ERROR', 'WARN', 'WARNING', 'INFO', 'DEBUG', 'CRITICAL', 'FATAL']
@@ -165,9 +169,13 @@ class AdvancedLogMonitor:
 
 
 if __name__ == "__main__":
-    log_file = "/Users/naveenvhiremath/Documents/testing/logs_testing/test.log"
+    log_file = os.getenv("LOG_FILE_PATH", "/Users/naveenvhiremath/Documents/testing/logs_testing/test.log")
+    output_file = os.getenv("OUTPUT_FILE", "errors.json")
+    db_url = f"postgresql://{os.getenv('DB_USER', 'postgres')}:{os.getenv('DB_PASSWORD', 'postgres')}@{os.getenv('DB_HOST', 'localhost')}:{os.getenv('DB_PORT', '5432')}/{os.getenv('DB_NAME', 'prod_monitoring')}"
+    
     monitor = AdvancedLogMonitor(
         log_file,
-        db_url="postgresql://postgres:postgres@localhost/prod_monitoring"
+        output_file=output_file,
+        db_url=db_url
     )
     monitor.monitor()

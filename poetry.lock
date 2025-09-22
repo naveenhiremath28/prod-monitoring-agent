@@ -1250,4 +1250,4 @@ standard = ["colorama (>=0.4) ; sys_platform == \"win32\"", "httptools (>=0.6.3)
 [metadata]
 lock-version = "2.1"
 python-versions = ">=3.10,<4.0"
-content-hash = "befeabbc77beeaa2851ecbf8a422af46aebc6c5b27e903096d04e418cca24fab"
+content-hash = "05c4bce1d89ec6cc464518127fa250a6b9b4fd2032a101aab8b4d054772b73e9"
