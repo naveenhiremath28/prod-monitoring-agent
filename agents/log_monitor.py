@@ -147,10 +147,10 @@ class AdvancedLogMonitor:
                     timestamp=error_record['timestamp'],
                     source=error_record['source']
                 )
-                print(f"Generated title with LLM: {title}")
+                print(f"\n\n\n\nGenerated title with LLM: {title}")
                 return title, description
             except Exception as e:
-                print(f"LLM generation failed: {e}, falling back to regex")
+                print(f"\n\n\n\nLLM generation failed: {e}, falling back to regex")
                 # Fall back to regex-based generation
                 title = self.extract_clean_title(error_record['error_line'])
                 description = error_record['error_context']
@@ -170,10 +170,10 @@ class AdvancedLogMonitor:
             
             # Generate title and description using LLM or fallback to regex
             title, description = self.generate_ticket_content(error_record)
-            print(f"\n\nGenerated title: {title}")
-            print("====Description started====")
-            print(f"\n\nGenerated description: {description}")
-            print("====Description ended====")
+            # print(f"\n\nGenerated title: {title}")
+            # print("====Description started====")
+            # print(f"\n\nGenerated description: {description}")
+            # print("====Description ended====")
             
             existing_issue = self.issue_service.get_issue_by_title(title)
             
@@ -260,7 +260,7 @@ class AdvancedLogMonitor:
 
 
 if __name__ == "__main__":
-    log_file = os.getenv("LOG_FILE_PATH", "/Users/naveenvhiremath/Documents/testing/logs_testing/test.log")
+    log_file = os.getenv("LOG_FILE_PATH", os.getenv("LOG_FILE_PATH"))
     output_file = os.getenv("OUTPUT_FILE", "errors.json")
     db_url = f"postgresql://{os.getenv('DB_USER', 'postgres')}:{os.getenv('DB_PASSWORD', 'postgres')}@{os.getenv('DB_HOST', 'localhost')}:{os.getenv('DB_PORT', '5432')}/{os.getenv('DB_NAME', 'prod_monitoring')}"
     

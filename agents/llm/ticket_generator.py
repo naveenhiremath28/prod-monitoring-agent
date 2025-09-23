@@ -19,6 +19,7 @@ class TicketGenerator:
             llm_class: Type of LLM to use ("AzureOpenAI" or "OpenAI")
             model_params: Additional model parameters
         """
+        print(f"\n\n\n\nCreating LLM instance with {llm_class}, model params: {model_params}")
         self.llm, self.token_counter = LLMFactory.create_llm(llm_class, model_params)
         self._setup_prompts()
     
@@ -50,16 +51,23 @@ class TicketGenerator:
 
         self.description_prompt = """You are an expert at analyzing error logs and creating detailed, actionable ticket descriptions.
 
-            Your task is to analyze the provided error log and generate a comprehensive ticket description that includes:
-            1. **Summary**: Brief overview of what happened
-            2. **Root Cause**: Likely cause of the error based on the log
-            3. **Impact**: What systems/services are affected
-            4. **Steps to Reproduce**: How this error might be triggered
-            5. **Suggested Actions**: Recommended steps to resolve or investigate
+            Your task is to analyze the provided error log and generate a **comprehensive, developer-friendly description** that can be used directly in a ticket. 
 
-            Format your response as a structured description that would help a developer understand and fix the issue.
+            The description should cover:
+            - What happened (summary)
+            - Likely cause of the error
+            - Impact on systems/services
+            - Any observations from the log that help understand the error
 
-            Be specific and technical when appropriate, but also make it accessible to different team members.
+            **Formatting guidelines:**
+            - Provide the description as a **continuous paragraph or a few well-structured paragraphs**.
+            - Include all relevant technical details from the log.
+            - Make it detailed and thorough, so that a developer reading it can understand the error and its impact.
+            - Do **not** include headings, bullet points, or suggested actions.
+            - Be specific and technical when appropriate.
+
+            **Example output:**
+            "The application failed to connect to the database due to exhausted connection pools. During peak traffic periods, long-running queries are consuming available connections, which prevents new API requests from accessing the database. This error affects all services relying on database queries, causing intermittent failures and delayed responses. The logs show frequent connection timeouts, indicating that the current connection pool size is insufficient for the traffic load. Additional details in the logs suggest that specific queries involving large datasets are particularly problematic, which contributes to the system instability observed during high load periods."
         """
 
     def generate_ticket_title(self, error_log: str, log_level: str = "ERROR") -> str:
@@ -116,7 +124,7 @@ class TicketGenerator:
             
             response = self.llm.invoke(messages)
             description = response.content.strip()
-            
+            print(f"\n\n\n\nGenerated description with LLM: {description}")
             # Fallback if description is empty
             if not description:
                 description = self._fallback_description_generation(error_log, log_level, timestamp, source)
