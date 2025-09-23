@@ -11,17 +11,16 @@ class LLMConfig:
     """Configuration class for LLM providers"""
     
     @staticmethod
-    def get_azure_openai_config() -> Dict[str, Any]:
+    def get_azure_openai_config() -> dict[str, any]:
         """Get Azure OpenAI configuration from environment variables"""
         return {
-            "api_type": "azure",
-            "api_version": os.getenv("AZURE_OPENAI_API_VERSION", "2024-02-15-preview"),
-            "api_base": os.getenv("AZURE_OPENAI_ENDPOINT"),
-            "api_key": os.getenv("AZURE_OPENAI_API_KEY"),
             "deployment_name": os.getenv("AZURE_OPENAI_DEPLOYMENT_NAME"),
-            "model": os.getenv("AZURE_OPENAI_MODEL", "gpt-4"),
+            "model_name": os.getenv("AZURE_OPENAI_MODEL", "gpt-4"),
             "temperature": float(os.getenv("AZURE_OPENAI_TEMPERATURE", "0.1")),
             "max_tokens": int(os.getenv("AZURE_OPENAI_MAX_TOKENS", "500")),
+            "openai_api_key": os.getenv("AZURE_OPENAI_API_KEY"),
+            "openai_api_base": os.getenv("AZURE_OPENAI_ENDPOINT"),
+            "openai_api_version": os.getenv("AZURE_OPENAI_API_VERSION", "2024-02-15-preview"),
         }
     
     @staticmethod

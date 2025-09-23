@@ -172,24 +172,24 @@ class TicketGenerator:
                                        timestamp: str, source: str) -> str:
         """Fallback description generation"""
         return f"""**Error Summary**
-A {log_level} level error was detected in the system.
+        A {log_level} level error was detected in the system.
 
-**Timestamp**: {timestamp}
-**Source**: {source}
-**Log Level**: {log_level}
+        **Timestamp**: {timestamp}
+        **Source**: {source}
+        **Log Level**: {log_level}
 
-**Error Details**:
-```
-{error_log}
-```
+        **Error Details**:
+        ```
+        {error_log}
+        ```
 
-**Next Steps**:
-1. Review the error log for specific error messages
-2. Check system resources and dependencies
-3. Investigate recent changes that might have caused this issue
-4. Monitor for similar errors in the future
+        **Next Steps**:
+        1. Review the error log for specific error messages
+        2. Check system resources and dependencies
+        3. Investigate recent changes that might have caused this issue
+        4. Monitor for similar errors in the future
 
-**Priority**: {'High' if log_level in ['CRITICAL', 'FATAL'] else 'Medium'}"""
+    **Priority**: {'High' if log_level in ['CRITICAL', 'FATAL'] else 'Medium'}"""
     
     def get_token_usage(self) -> int:
         """Get total token usage for this session"""
