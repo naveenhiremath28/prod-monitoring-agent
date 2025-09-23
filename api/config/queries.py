@@ -19,31 +19,38 @@ class IssueQueries:
 
     CREATE_ISSUE = """
         INSERT INTO issues (
-            title, description, analysis, issue_logs, application_type,
-            occurrence, status, severity, error_type,
+            id, title, description, analysis, issue_logs, application_type,
+            occurrence, status, severity,
             created_at, updated_at
         ) VALUES (
-            :title, :description, :analysis, :issue_logs, :application_type,
-            :occurrence, :status, :severity, :error_type,
+            :id, :title, :description, :analysis, :issue_logs, :application_type,
+            :occurrence, :status, :severity,
             now(), now()
         )
         RETURNING id, title, description, analysis, issue_logs, application_type,
-                occurrence, status, severity, error_type,
+                occurrence, status, severity,
                 created_at, updated_at;
     """
 
     UPDATE_ISSUE = """
         UPDATE issues
-        SET title = :title,
-            description = :description,
-            status = :status,
+        SET occurrence = :occurrence,
             issue_logs = :issue_logs,
             updated_at = :updated_at
         WHERE id = :issue_id
-        RETURNING id, title, description, status, created_at, updated_at;
+        RETURNING id, title, description, occurrence, issue_logs, created_at, updated_at;
     """
 
     DELETE_ISSUE = """
         DELETE FROM issues
         WHERE id = :issue_id;
+    """
+
+    GET_ISSUE_BY_TITLE = """
+        SELECT id, title, description, analysis, issue_logs,
+            application_type, occurrence, status,
+            severity, error_type,
+            created_at, updated_at
+        FROM issues
+        WHERE title = :title;
     """
