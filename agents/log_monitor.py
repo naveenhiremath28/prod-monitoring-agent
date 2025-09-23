@@ -77,13 +77,48 @@ class AdvancedLogMonitor:
                 continue
         return datetime.now().isoformat()
 
+    def extract_clean_title(self, error_line: str) -> str:
+        """
+        Extract a clean error title by removing timestamp, log level, and other metadata.
+        Returns only the meaningful error message/issue name.
+        """
+        # Remove ANSI colors first
+        clean_line = self.clean_line(error_line)
+        
+        # Remove timestamp if present
+        clean_line = self.timestamp_regex.sub('', clean_line)
+        
+        # Remove log level patterns
+        for level in self.COMMON_LOG_LEVELS:
+            clean_line = re.sub(rf'\b{level}\b', '', clean_line, flags=re.IGNORECASE)
+        
+        # Remove common log prefixes and separators
+        clean_line = re.sub(r'^[\[\]\s\-_|]+', '', clean_line)  # Remove leading brackets, dashes, pipes
+        clean_line = re.sub(r'^[A-Za-z0-9._-]+\s*:', '', clean_line)  # Remove logger names
+        clean_line = re.sub(r'^\s*\d+\s*', '', clean_line)  # Remove leading numbers
+        clean_line = re.sub(r'^\s*[\[\](){}]+\s*', '', clean_line)  # Remove leading brackets/parentheses
+        
+        # Clean up whitespace
+        clean_line = clean_line.strip()
+        
+        # If the line is empty or too short, use a generic title
+        if len(clean_line) < 10:
+            return "Error detected in logs"
+        
+        # Limit to 200 characters and ensure it ends properly
+        if len(clean_line) > 200:
+            clean_line = clean_line[:197] + "..."
+        
+        return clean_line
+
     def save_error(self, error_record: Dict):
         try:
             # Save to JSON file
             data = json.loads(self.output_file.read_text())
             data.append(error_record)
             self.output_file.write_text(json.dumps(data, indent=2))
-            title = error_record['error_line'][:200]
+            title = self.extract_clean_title(error_record['error_line'])
+            print(f"\n\n\n\ntitle: {title}\n\n\n\n")
             existing_issue = self.issue_service.get_issue_by_title(title)
             
             if existing_issue:

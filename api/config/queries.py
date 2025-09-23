@@ -20,15 +20,15 @@ class IssueQueries:
     CREATE_ISSUE = """
         INSERT INTO issues (
             id, title, description, analysis, issue_logs, application_type,
-            occurrence, status, severity, error_type,
+            occurrence, status, severity,
             created_at, updated_at
         ) VALUES (
-            :id,:title, :description, :analysis, :issue_logs, :application_type,
-            :occurrence, :status, :severity, :error_type,
+            :id, :title, :description, :analysis, :issue_logs, :application_type,
+            :occurrence, :status, :severity,
             now(), now()
         )
         RETURNING id, title, description, analysis, issue_logs, application_type,
-                occurrence, status, severity, error_type,
+                occurrence, status, severity,
                 created_at, updated_at;
     """
 
