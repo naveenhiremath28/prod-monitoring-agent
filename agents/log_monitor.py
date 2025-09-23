@@ -11,13 +11,15 @@ from dotenv import load_dotenv
 from api.controllers.services import IssueService
 from api.schemas.schema import IssueCreate, IssueUpdate
 from uuid import UUID
+from agents.llm.ticket_generator import TicketGenerator
 
 load_dotenv()
 
 class AdvancedLogMonitor:
     COMMON_LOG_LEVELS = ['ERROR', 'WARN', 'WARNING', 'INFO', 'DEBUG', 'CRITICAL', 'FATAL']
 
-    def __init__(self, log_path: str, output_file: str = "errors.json", db_url: str = "postgresql://user:password@localhost/dbname"):
+    def __init__(self, log_path: str, output_file: str = "errors.json", db_url: str = "postgresql://user:password@localhost/dbname", 
+                 use_llm: bool = True, llm_class: str = "AzureOpenAI", llm_params: Optional[Dict] = None):
         self.log_path = Path(log_path)
         self.last_position = 0
         self.total_processed = 0
@@ -30,6 +32,22 @@ class AdvancedLogMonitor:
             self.output_file.write_text("[]")
         engine = create_engine(db_url)
         self.issue_service = IssueService(engine)
+        
+        # LLM configuration
+        self.use_llm = use_llm
+        self.ticket_generator = None
+        if self.use_llm:
+            try:
+                self.ticket_generator = TicketGenerator(
+                    llm_class=llm_class,
+                    model_params=llm_params or {}
+                )
+                print(f"LLM ticket generator initialized with {llm_class}")
+            except Exception as e:
+                print(f"Failed to initialize LLM ticket generator: {e}")
+                print("Falling back to regex-based title extraction")
+                self.use_llm = False
+        
         # Remove ANSI colors
         self.ansi_escape = re.compile(r'\x1B(?:[@-Z\\-_]|\[[0-?]*[ -/]*[@-~])')
         # Dynamic timestamp detection (flexible)
@@ -111,14 +129,52 @@ class AdvancedLogMonitor:
         
         return clean_line
 
+    def generate_ticket_content(self, error_record: Dict) -> tuple[str, str]:
+        """
+        Generate ticket title and description using LLM or fallback to regex
+        
+        Args:
+            error_record: Dictionary containing error information
+            
+        Returns:
+            Tuple of (title, description)
+        """
+        if self.use_llm and self.ticket_generator:
+            try:
+                title, description = self.ticket_generator.generate_ticket_content(
+                    error_log=error_record['error_context'],
+                    log_level=error_record['level'],
+                    timestamp=error_record['timestamp'],
+                    source=error_record['source']
+                )
+                print(f"Generated title with LLM: {title}")
+                return title, description
+            except Exception as e:
+                print(f"LLM generation failed: {e}, falling back to regex")
+                # Fall back to regex-based generation
+                title = self.extract_clean_title(error_record['error_line'])
+                description = error_record['error_context']
+                return title, description
+        else:
+            # Use regex-based title extraction
+            title = self.extract_clean_title(error_record['error_line'])
+            description = error_record['error_context']
+            return title, description
+
     def save_error(self, error_record: Dict):
         try:
             # Save to JSON file
             data = json.loads(self.output_file.read_text())
             data.append(error_record)
             self.output_file.write_text(json.dumps(data, indent=2))
-            title = self.extract_clean_title(error_record['error_line'])
-            print(f"\n\n\n\ntitle: {title}\n\n\n\n")
+            
+            # Generate title and description using LLM or fallback to regex
+            title, description = self.generate_ticket_content(error_record)
+            print(f"\n\nGenerated title: {title}")
+            print("====Description started====")
+            print(f"\n\nGenerated description: {description}")
+            print("====Description ended====")
+            
             existing_issue = self.issue_service.get_issue_by_title(title)
             
             if existing_issue:
@@ -133,10 +189,10 @@ class AdvancedLogMonitor:
                 self.issue_service.update_issue(issue_id, issue_update)
                 print(f"Updated existing issue (occurrence: {issue_update.occurrence}), id: {issue_id}")
             else:
-                # Create new issue
+                # Create new issue with LLM-generated content
                 issue_create = IssueCreate(
                     title=title,
-                    description=error_record['error_context'],
+                    description=description,
                     severity="high" if error_record['level'] in ['ERROR', 'CRITICAL', 'FATAL'] else "medium",
                     error_type="general",
                     application_type="Test",
@@ -208,9 +264,20 @@ if __name__ == "__main__":
     output_file = os.getenv("OUTPUT_FILE", "errors.json")
     db_url = f"postgresql://{os.getenv('DB_USER', 'postgres')}:{os.getenv('DB_PASSWORD', 'postgres')}@{os.getenv('DB_HOST', 'localhost')}:{os.getenv('DB_PORT', '5432')}/{os.getenv('DB_NAME', 'prod_monitoring')}"
     
+    # LLM configuration
+    use_llm = os.getenv("USE_LLM", "true").lower() == "true"
+    llm_class = os.getenv("LLM_CLASS", "AzureOpenAI")  # or "OpenAI"
+    llm_params = {
+        "temperature": float(os.getenv("LLM_TEMPERATURE", "0.1")),
+        "max_tokens": int(os.getenv("LLM_MAX_TOKENS", "500")),
+    }
+    
     monitor = AdvancedLogMonitor(
         log_file,
         output_file=output_file,
-        db_url=db_url
+        db_url=db_url,
+        use_llm=use_llm,
+        llm_class=llm_class,
+        llm_params=llm_params
     )
     monitor.monitor()
