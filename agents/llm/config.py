@@ -11,16 +11,16 @@ class LLMConfig:
     """Configuration class for LLM providers"""
     
     @staticmethod
-    def get_azure_openai_config() -> dict[str, any]:
+    def get_azure_openai_config() -> Dict[str, Any]:
         """Get Azure OpenAI configuration from environment variables"""
         return {
-            "deployment_name": os.getenv("AZURE_OPENAI_DEPLOYMENT_NAME"),
-            "model_name": os.getenv("AZURE_OPENAI_MODEL", "gpt-4"),
+            "azure_endpoint": os.getenv("AZURE_OPENAI_ENDPOINT"),
+            "api_key": os.getenv("AZURE_OPENAI_API_KEY"),
+            "azure_deployment": os.getenv("AZURE_OPENAI_DEPLOYMENT_NAME"),
+            "model": os.getenv("AZURE_OPENAI_MODEL", "gpt-4"),
+            "api_version": os.getenv("AZURE_OPENAI_API_VERSION", "2024-02-15-preview"),
             "temperature": float(os.getenv("AZURE_OPENAI_TEMPERATURE", "0.1")),
             "max_tokens": int(os.getenv("AZURE_OPENAI_MAX_TOKENS", "500")),
-            "openai_api_key": os.getenv("AZURE_OPENAI_API_KEY"),
-            "openai_api_base": os.getenv("AZURE_OPENAI_ENDPOINT"),
-            "openai_api_version": os.getenv("AZURE_OPENAI_API_VERSION", "2024-02-15-preview"),
         }
     
     @staticmethod
@@ -36,7 +36,7 @@ class LLMConfig:
     @staticmethod
     def validate_azure_config(config: Dict[str, Any]) -> bool:
         """Validate Azure OpenAI configuration"""
-        required_fields = ["api_base", "api_key", "deployment_name"]
+        required_fields = ["azure_endpoint", "api_key", "azure_deployment"]
         return all(config.get(field) for field in required_fields)
     
     @staticmethod

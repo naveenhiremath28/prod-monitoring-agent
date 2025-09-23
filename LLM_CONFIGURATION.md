@@ -31,11 +31,11 @@ LLM_MAX_TOKENS=500
 
 ### Azure OpenAI Configuration (required if LLM_CLASS=AzureOpenAI)
 ```bash
-AZURE_OPENAI_ENDPOINT=https://your-resource.openai.azure.com/
+AZURE_OPENAI_ENDPOINT=https://nlq-openai.openai.azure.com/
 AZURE_OPENAI_API_KEY=your-api-key
-AZURE_OPENAI_DEPLOYMENT_NAME=your-deployment-name
-AZURE_OPENAI_MODEL=gpt-4
-AZURE_OPENAI_API_VERSION=2024-02-15-preview
+AZURE_OPENAI_DEPLOYMENT_NAME=gpt-4o
+AZURE_OPENAI_MODEL=gpt-4o
+AZURE_OPENAI_API_VERSION=2024-12-01-preview
 ```
 
 ### OpenAI Configuration (required if LLM_CLASS=OpenAI)

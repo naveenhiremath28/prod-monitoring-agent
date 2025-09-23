@@ -67,6 +67,8 @@ class LLMFactory:
         
         # Remove any extra parameters that might cause issues
         other_config = config.pop("other_config", None)
+
+        # print(f"\n\n\n\nCreating Azure OpenAI LLM instance with config: {config}")
         
         llm = AzureChatOpenAI(**config)
         
